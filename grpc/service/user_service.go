@@ -9,6 +9,7 @@ import (
 	"projects/Repairment_service/Repairment_user_service/pkg/logger"
 	"projects/Repairment_service/Repairment_user_service/storage"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -61,7 +62,7 @@ func (u *UserService) GetById(ctx context.Context, req *user_service.UserPrimary
 	return
 }
 
-func (u *UserService) GetAll(ctx context.Context, req *user_service.GetListUserRequest) (resp *user_service.GetListUserResponse, err error) {
+func (u *UserService) GetList(ctx context.Context, req *user_service.GetListUserRequest) (resp *user_service.GetListUserResponse, err error) {
 	u.log.Info("-------GetAll user---------->", logger.Any("req", req))
 
 	resp, err = u.strg.User().GetList(ctx, req)
@@ -122,4 +123,16 @@ func (u *UserService) UpdatePatch(ctx context.Context, req *user_service.UpdateP
 	}
 
 	return resp, nil
+}
+
+func (b *UserService) Delete(ctx context.Context, req *user_service.UserPrimaryKey) (*empty.Empty, error) {
+	b.log.Info("---DeleteUser--->", logger.Any("req", req))
+
+	err := b.strg.User().Delete(ctx, req)
+	if err != nil {
+		b.log.Error("!!!DeleteOrder--->", logger.Error(err))
+		return &empty.Empty{}, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return &empty.Empty{}, nil
 }
